@@ -16,12 +16,4 @@ return {
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
 
-  -- my plugin
-  {
-    dir = "~/Repos/CodeBlockPlaceholder/",
-    name = "code-block-placeholder",
-    config = function()
-      require('code-placeholder')
-    end
-  }
 }
