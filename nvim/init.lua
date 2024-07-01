@@ -243,7 +243,7 @@ require('lazy').setup({
   },
 
   -- Install Undo Tree
-  {'mbbill/undotree'},
+  { 'mbbill/undotree' },
 
   -- Install dashboard-nvim
   {
@@ -252,19 +252,12 @@ require('lazy').setup({
     opts = function()
       local logo =
       [[
-
-
-
-                                                    
-             ████ ██████           █████      ██
-            ███████████             █████ 
-            █████████ ███████████████████ ███   ███████████
-           █████████  ███    █████████████ █████ ██████████████
-          █████████ ██████████ █████████ █████ █████ ████ █████
-        ███████████ ███    ███ █████████ █████ █████ ████ █████
-       ██████  █████████████████████ ████ █████ █████ ████ ██████
-
-
+        ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗
+        ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║
+        ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║
+        ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║
+        ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║
+        ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝
     ]]
 
       logo = string.rep("\n", 8) .. logo .. "\n\n"
@@ -853,7 +846,7 @@ require('lazy').setup({
   -- },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim',  event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
