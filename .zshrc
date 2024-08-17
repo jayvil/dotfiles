@@ -115,7 +115,7 @@ export PATH="$PATH:/root/cmake-3.29.7-linux-x86_64/bin"
 
 
 # Set up fzf key bindings and fuzzy completion
-# source <(fzf --zsh)
+source <(fzf --zsh)
 #
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -124,12 +124,10 @@ export PATH="$PATH:/root/cmake-3.29.7-linux-x86_64/bin"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 alias vim='nvim'
-alias fzf='fzf -m --preview="batcat --color=always {}"'
-alias fnvim='nvim $(fzf -m --preview="batcat --color=always {}")'
+alias fzf='fzf -m --preview="bat --color=always {}"'
+alias fnvim='nvim $(fzf -m --preview="bat --color=always {}")'
 # colorls requires ruby installed
 alias l="colorls -lA --sd"
 alias ll="colorls -l"
 alias ls="colorls"
 alias nf="neofetch"
-alias buildAll="cd ~/Repos/; ~/Repos/omcs-dev-tools/build_all.sh"
-alias repos="cd /mnt/c/Users/j66703/OneDrive\ -\ NGC/Desktop/Repos/"
