@@ -84,6 +84,12 @@ vim.g.have_nerd_font = true
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
+vim.opt.expandtab = true
+
+vim.opt.shiftwidth = 2
+
+vim.opt.smarttab = true
+
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -162,10 +168,10 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -617,19 +623,23 @@ require('lazy').setup({
             --  - settings (table): Override the default settings passed when initializing the server.
             --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
             local servers = {
-                gopls = {},
-                pyright = {},
+                -- gopls = {},
                 rust_analyzer = {},
-                clangd = {},
-                dockerls = {},
-                pyright = {},
+                -- If using cMake as build system, run: cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+                -- This allows clangd to know the build flags. See: https://clangd.llvm.org/installation.html for more info
+                clangd = {
+                    cmd = { 'clangd', '--background-index', '--clang-tidy', '--log=verbose' },
+                    init_options = { fallbackFlags = { '-std=c++17' } },
+                },
+                -- dockerls = {},
+                -- pyright = {},
                 -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
                 --
                 -- Some languages (like typescript) have entire language plugins that can be useful:
                 --    https://github.com/pmizio/typescript-tools.nvim
                 --
                 -- But for many setups, the LSP (`tsserver`) will work just fine
-                tsserver = {},
+                -- tsserver = {},
                 --
 
                 lua_ls = {
