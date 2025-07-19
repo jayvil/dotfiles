@@ -124,7 +124,6 @@ source <(fzf --zsh)
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-alias vim='nvim'
 alias fzf='fzf -m --preview="bat --color=always {}"'
 alias fnvim='nvim $(fzf -m --preview="bat --color=always {}")'
 # colorls requires ruby installed
