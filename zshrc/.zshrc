@@ -1,4 +1,4 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -112,7 +112,7 @@ alias ohmyzsh="mate ~/.oh-my-zsh"
 
 export PATH="$PATH:/opt/nvim-linux64/bin"
 export PATH="$PATH:/root/cmake-3.29.7-linux-x86_64/bin"
-export GEM_HOME="$(gem env user_gemhome)"
+export GEM_HOME="$HOME/.gem"
 export PATH="$PATH:$GEM_HOME/bin"
 
 # Set up fzf key bindings and fuzzy completion
@@ -132,7 +132,7 @@ alias ll="colorls -l"
 alias ls="colorls"
 alias nf="neofetch"
 source ~/powerlevel10k/powerlevel10k.zsh-theme
-source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
+#source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
 source $(dirname $(gem which colorls))/tab_complete.sh
 
 # Generated for envman. Do not edit.
