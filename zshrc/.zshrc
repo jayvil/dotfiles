@@ -5,8 +5,9 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+export JAVA_HOME="/usr/lib/jvm/default"
 # If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+export PATH=$JAVA_HOME/bin:$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -115,6 +116,9 @@ export PATH="$PATH:/root/cmake-3.29.7-linux-x86_64/bin"
 export GEM_HOME="$HOME/.gem"
 export PATH="$PATH:$GEM_HOME/bin"
 
+path+=(
+    $(ruby -e 'puts File.join(Gem.user_dir, "bin")')
+)
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
 #
@@ -137,3 +141,7 @@ source $(dirname $(gem which colorls))/tab_complete.sh
 
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+export PATH="/home/jayvil/.pixi/bin:$PATH"
+export PATH=$PATH:$HOME/.local/opt/go/bin
+export PATH=$PATH:$HOME/go/bin
+export PATH="/home/jayvil/Repos/Odin:$PATH"

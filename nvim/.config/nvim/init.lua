@@ -198,6 +198,18 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
+-- Auto-resolve swapfile conflicts by opening read-only instead of showing the
+-- interactive E325 prompt. Without this, async jumps (e.g. Telescope LSP
+-- definitions/references via vim.lsp.util.jump_to_location) crash with
+-- "E325: ATTENTION" because that prompt can't be rendered inside vim.schedule.
+vim.api.nvim_create_autocmd("SwapExists", {
+	desc = "Open read-only on swapfile conflict instead of crashing async jumps",
+	group = vim.api.nvim_create_augroup("kickstart-swap-exists", { clear = true }),
+	callback = function()
+		vim.v.swapchoice = "o"
+	end,
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -285,7 +297,7 @@ require("lazy").setup({
           -- stylua: ignore
           center = {
             { action = 'Telescope find_files', desc = " Find File", icon = " ", key = "f" },
-            { action = 'Ex', desc = " File Tree", icon = " ", key = "e" },
+            { action = 'Oil', desc = " File Tree", icon = " ", key = "e" },
             { action = "ene | startinsert", desc = " New File", icon = " ", key = "n" },
             { action = 'Telescope oldfiles', desc = " Recent Files", icon = " ", key = "r" },
             { action = 'Telescope live_grep', desc = " Find Text", icon = " ", key = "g" },
@@ -483,6 +495,9 @@ require("lazy").setup({
 			-- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
 			-- used for completion, annotations and signatures of Neovim apis
 			{ "folke/neodev.nvim", opts = {} },
+
+			-- clangd-specific extras: switch header/source, inlay hints, AST/memory-usage views
+			"p00f/clangd_extensions.nvim",
 		},
 		config = function()
 			-- Brief aside: **What is LSP?**
@@ -571,12 +586,18 @@ require("lazy").setup({
 					--  For example, in C this would take you to the header.
 					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
+					local client = vim.lsp.get_client_by_id(event.data.client_id)
+
+					-- clangd's own header/source switch (the Alt+O equivalent from VSCode's cpptools)
+					if client and client.name == "clangd" then
+						map("<leader>ch", "<cmd>ClangdSwitchSourceHeader<cr>", "[C]langd Switch [H]eader/Source")
+					end
+
 					-- The following two autocommands are used to highlight references of the
 					-- word under your cursor when your cursor rests there for a little while.
 					--    See `:help CursorHold` for information about when this is executed
 					--
 					-- When you move your cursor, the highlights will be cleared (the second autocommand).
-					local client = vim.lsp.get_client_by_id(event.data.client_id)
 					if client and client.server_capabilities.documentHighlightProvider then
 						local highlight_augroup =
 							vim.api.nvim_create_augroup("kickstart-lsp-highlight", { clear = false })
@@ -635,8 +656,15 @@ require("lazy").setup({
 				-- NOTE: If using cMake as build system, run: cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 				-- This allows clangd to know the build flags. See: https://clangd.llvm.org/installation.html for more info
 				clangd = {
-					cmd = { "clangd", "--background-index", "--clang-tidy", "--log=verbose" },
-					init_options = { fallbackFlags = { "-std=c++17" } },
+					cmd = {
+						"clangd",
+						"--background-index",
+						"--clang-tidy",
+						"--header-insertion=iwyu",
+						"--completion-style=detailed",
+						"--pch-storage=memory",
+					},
+					init_options = { fallbackFlags = { "-std=c++26" } },
 				},
 				-- dockerls = {},
 				pyright = {},
@@ -648,6 +676,9 @@ require("lazy").setup({
 				-- But for many setups, the LSP (`tsserver`) will work just fine
 				-- tsserver = {},
 				--
+				-- jdtls is started by lua/kickstart/plugins/jdtls.lua (nvim-jdtls), which
+				-- is required for `gd` into library classes (jdt:// URIs). Installed via
+				-- ensure_installed below; excluded from automatic_enable.
 				asm_lsp = {},
 				lua_ls = {
 					-- cmd = {...},
@@ -678,21 +709,32 @@ require("lazy").setup({
 			local ensure_installed = vim.tbl_keys(servers or {})
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
+				"jdtls",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
-			require("mason-lspconfig").setup({
-				handlers = {
-					function(server_name)
-						local server = servers[server_name] or {}
-						-- This handles overriding only values explicitly passed
-						-- by the server configuration above. Useful when disabling
-						-- certain features of an LSP (for example, turning off formatting for tsserver)
-						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-						require("lspconfig")[server_name].setup(server)
-					end,
-				},
-			})
+			-- NOTE: The installed mason-lspconfig.nvim (main branch) has dropped the
+			-- old `handlers = {...}` API in favor of Neovim's native `vim.lsp.config()`
+			-- / `vim.lsp.enable()` (nvim 0.11+). Passing `handlers` to `.setup()` is
+			-- silently ignored on this version, so every override in `servers` above
+			-- (capabilities, clangd's cmd/init_options, lua_ls settings, etc.) was
+			-- never actually reaching any server. Register each server's config
+			-- directly instead; mason-lspconfig's `automatic_enable` (on by default)
+			-- then calls `vim.lsp.enable()` for every installed server, picking up
+			-- whatever we registered here.
+			for server_name, server in pairs(servers) do
+				server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
+				vim.lsp.config(server_name, server)
+			end
+
+			require("mason-lspconfig").setup({ automatic_enable = { exclude = { "jdtls" } } })
+
+			-- clangd_extensions.nvim was also rewritten for the vim.lsp.config() era:
+			-- it no longer takes a `server` key (that no-ops here too) or an
+			-- `extensions` wrapper -- it now only configures its own UI features
+			-- (:ClangdAST, :ClangdMemoryUsage, symbol-info float, etc.), since the
+			-- clangd server itself is configured above via vim.lsp.config('clangd', ...).
+			require("clangd_extensions").setup()
 		end,
 	},
 
@@ -723,6 +765,8 @@ require("lazy").setup({
 			end,
 			formatters_by_ft = {
 				lua = { "stylua" },
+				c = { "clang-format" },
+				cpp = { "clang-format" },
 				-- Conform can also run multiple formatters sequentially
 				-- python = { "isort", "black" },
 				--
@@ -740,15 +784,8 @@ require("lazy").setup({
 			-- Snippet Engine & its associated nvim-cmp source
 			{
 				"L3MON4D3/LuaSnip",
-				build = (function()
-					-- Build Step is needed for regex support in snippets.
-					-- This step is not supported in many windows environments.
-					-- Remove the below condition to re-enable on windows.
-					if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then
-						return
-					end
-					return "make install_jsregexp"
-				end)(),
+				version = "v2.*",
+				build = "make install_jsregexp",
 				dependencies = {
 					-- `friendly-snippets` contains a variety of premade snippets.
 					--    See the README about individual language/framework/plugin snippets:
@@ -802,7 +839,6 @@ require("lazy").setup({
 					--  This will expand snippets if the LSP sent a snippet.
 					["<C-y>"] = cmp.mapping.confirm({ select = true }),
 
-					-- If you prefer more traditional completion keymaps,
 					-- you can uncomment the following lines
 					--['<CR>'] = cmp.mapping.confirm { select = true },
 					--['<Tab>'] = cmp.mapping.select_next_item(),
@@ -867,7 +903,7 @@ require("lazy").setup({
 		"folke/todo-comments.nvim",
 		event = "VimEnter",
 		dependencies = { "nvim-lua/plenary.nvim" },
-		opts = { signs = false },
+		opts = {},
 	},
 
 	{ -- Collection of various small independent plugins/modules
@@ -927,6 +963,8 @@ require("lazy").setup({
 				"javascript",
 				"go",
 				"bash",
+				"zig",
+				"java",
 			},
 			-- Autoinstall languages that are not installed
 			auto_install = true,
@@ -937,7 +975,9 @@ require("lazy").setup({
 				--  the list of additional_vim_regex_highlighting and disabled languages for indent.
 				additional_vim_regex_highlighting = { "ruby" },
 			},
-			indent = { enable = true, disable = { "ruby" } },
+			-- treesitter's indent module produces wrong (flat/0) indent for c/cpp braces;
+			-- disabling it here lets the built-in cindent (already correct) handle them instead
+			indent = { enable = true, disable = { "ruby", "c", "cpp" } },
 		},
 		config = function(_, opts)
 			-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
