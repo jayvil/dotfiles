@@ -28,7 +28,7 @@ git push
 | Package    | Links to                                  | What it is                              |
 | ---------- | ----------------------------------------- | --------------------------------------- |
 | `fish`     | `~/.config/fish`                          | Fish shell                              |
-| `hypr`     | `~/.config/hypr`                          | Hyprland, hyprlock, hypridle, hyprpaper |
+| `hypr`     | `~/.config/hypr`                          | Hyprland, hyprlock, hypridle            |
 | `kitty`    | `~/.config/kitty`                         | Kitty terminal                          |
 | `neofetch` | `~/.config/neofetch`                      | Neofetch                                |
 | `nvim`     | `~/.config/nvim`                          | Neovim (kickstart-based, lazy.nvim)     |
@@ -87,6 +87,7 @@ these files, which are **not** committed:
 | `~/.zshrc.local`                | Extra `PATH` entries, env vars, secrets, local aliases  |
 | `~/.config/hypr/local.conf`     | Monitor layout and scaling, extra binds (created empty by `install.sh`) |
 | `~/.config/hypr/lockscreen.jpg` | Lock screen image; copy or symlink one here (solid color if missing) |
+| `~/.config/waypaper/config.ini` | Waypaper's saved state (current wallpaper); seeded from `config.ini.example` |
 
 Example `~/.config/hypr/local.conf` for a HiDPI laptop with an external screen:
 

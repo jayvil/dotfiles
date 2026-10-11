@@ -101,6 +101,11 @@ create_local_files() {
 			"# Example: monitor=eDP-1,preferred,auto,1.5" >"$HOME/.config/hypr/local.conf"
 		echo "    created ~/.config/hypr/local.conf"
 	fi
+	local waypaper="$HOME/.config/waypaper"
+	if [ -f "$waypaper/config.ini.example" ] && [ ! -e "$waypaper/config.ini" ]; then
+		cp "$waypaper/config.ini.example" "$waypaper/config.ini"
+		echo "    created ~/.config/waypaper/config.ini"
+	fi
 }
 
 main() {

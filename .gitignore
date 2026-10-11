@@ -3,3 +3,5 @@
 # Machine-specific files (see README)
 hypr/.config/hypr/local.conf
 hypr/.config/hypr/lockscreen.*
+# Waypaper rewrites this on every wallpaper change; install.sh seeds it from config.ini.example
+waypaper/.config/waypaper/config.ini

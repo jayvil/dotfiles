@@ -13,7 +13,7 @@
 			"hyprland/window"
 		],
 		"modules-right": [
-			"custom/media",
+			"mpris",
 		"idle_inhibitor",
 		"pulseaudio",
 		"bluetooth",
@@ -220,17 +220,18 @@
 			"on-click": "pavucontrol"
 		},
 
-		"custom/media": {
-			"format": "{icon} {text}",
-			"return-type": "json",
-			"max-length": 40,
-			"format-icons": {
-				"spotify": "",
-				"default": "🎜"
+		// Built-in media player module (needs playerctl); hidden when nothing plays
+		"mpris": {
+			"format": "{player_icon} {dynamic}",
+			"format-paused": "{status_icon} <i>{dynamic}</i>",
+			"dynamic-len": 40,
+			"player-icons": {
+				"default": "🎜",
+				"spotify": ""
 			},
-			"escape": true,
-			"exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
-										   // "exec": "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
+			"status-icons": {
+				"paused": "⏸"
+			}
 		},
 		"custom/power": {
 			"format" : "⏻ ",
