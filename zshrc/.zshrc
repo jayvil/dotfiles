@@ -5,9 +5,15 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-export JAVA_HOME="/usr/lib/jvm/default"
 # If you come from bash you might have to change your $PATH.
-export PATH=$JAVA_HOME/bin:$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+typeset -U path  # drop duplicate PATH entries
+
+# Arch's default JDK (set with archlinux-java)
+if [[ -d /usr/lib/jvm/default ]]; then
+  export JAVA_HOME=/usr/lib/jvm/default
+  path=($JAVA_HOME/bin $path)
+fi
 
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -111,16 +117,23 @@ source $ZSH/oh-my-zsh.sh
 alias zshconfig="mate ~/.zshrc"
 alias ohmyzsh="mate ~/.oh-my-zsh"
 
-export PATH="$PATH:/opt/nvim-linux64/bin"
-export PATH="$PATH:/root/cmake-3.29.7-linux-x86_64/bin"
-export GEM_HOME="$HOME/.gem"
-export PATH="$PATH:$GEM_HOME/bin"
-
+# Optional tool directories; (N-/) adds each one only if it exists
+path=($HOME/.pixi/bin(N-/) $path)
 path+=(
-    $(ruby -e 'puts File.join(Gem.user_dir, "bin")')
+  /opt/nvim-linux64/bin(N-/)
+  $HOME/.local/opt/go/bin(N-/)
+  $HOME/go/bin(N-/)
 )
+
+# Ruby gems (colorls etc.) install per-user
+export GEM_HOME="$HOME/.gem"
+path+=($GEM_HOME/bin)
+if (( $+commands[ruby] )); then
+  path+=($(ruby -e 'puts File.join(Gem.user_dir, "bin")'))
+fi
+
 # Set up fzf key bindings and fuzzy completion
-source <(fzf --zsh)
+(( $+commands[fzf] )) && source <(fzf --zsh)
 #
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -130,10 +143,12 @@ source <(fzf --zsh)
 
 alias fzf='fzf -m --preview="bat --color=always {}"'
 alias fnvim='nvim $(fzf -m --preview="bat --color=always {}")'
-# colorls requires ruby installed
-alias l="colorls -lA --sd"
-alias ll="colorls -l"
-alias ls="colorls"
+# colorls requires ruby installed (gem install colorls)
+if (( $+commands[colorls] )); then
+  alias l="colorls -lA --sd"
+  alias ll="colorls -l"
+  alias ls="colorls"
+fi
 alias nf="neofetch"
 [[ -f ~/powerlevel10k/powerlevel10k.zsh-theme ]] && source ~/powerlevel10k/powerlevel10k.zsh-theme
 #source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
@@ -142,7 +157,7 @@ unset _colorls_lib
 
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
-export PATH="/home/jayvil/.pixi/bin:$PATH"
-export PATH=$PATH:$HOME/.local/opt/go/bin
-export PATH=$PATH:$HOME/go/bin
-export PATH="/home/jayvil/Repos/Odin:$PATH"
+
+# Machine-specific settings (extra PATH entries, secrets, ...) go in
+# ~/.zshrc.local, which is not tracked in the dotfiles repo.
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

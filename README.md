@@ -51,7 +51,7 @@ git push
 2. Clone and run the installer:
 
    ```sh
-   git clone git@github.com:jayvil/dotfiles.git ~/dotfiles
+   git clone https://github.com/jayvil/dotfiles.git ~/dotfiles
    cd ~/dotfiles
    ./install.sh
    ```
@@ -76,6 +76,26 @@ To install only some packages, list them: `./install.sh nvim tmux zshrc`.
   `hypridle`, `hyprshot`, `hyprpicker`, `kitty`, `brightnessctl`, `playerctl`
 - **Neovim:** a C compiler, `ripgrep`, `fd`, and a [Nerd Font](https://www.nerdfonts.com/).
   LSP servers are installed automatically by Mason.
+
+## Per-machine settings
+
+The tracked configs are generic. Anything specific to one computer goes in
+these files, which are **not** committed:
+
+| File                            | Use it for                                              |
+| ------------------------------- | ------------------------------------------------------- |
+| `~/.zshrc.local`                | Extra `PATH` entries, env vars, secrets, local aliases  |
+| `~/.config/hypr/local.conf`     | Monitor layout and scaling, extra binds (created empty by `install.sh`) |
+| `~/.config/hypr/lockscreen.jpg` | Lock screen image; copy or symlink one here (solid color if missing) |
+
+Example `~/.config/hypr/local.conf` for a HiDPI laptop with an external screen:
+
+```
+monitor=eDP-1,preferred,auto,1.875
+monitor=DP-7,preferred,auto-left,auto
+```
+
+Run `hyprctl monitors` to find your monitor names.
 
 ## Common tasks
 

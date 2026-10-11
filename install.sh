@@ -92,10 +92,22 @@ stow_packages() {
 	fi
 }
 
+# Create the untracked per-machine files the configs expect.
+create_local_files() {
+	info "Per-machine files"
+	if [ -d "$HOME/.config/hypr" ] && [ ! -e "$HOME/.config/hypr/local.conf" ]; then
+		printf '%s\n' "# Machine-specific Hyprland settings (monitors, scaling, ...)." \
+			"# Sourced at the end of hyprland.conf; not tracked in git." \
+			"# Example: monitor=eDP-1,preferred,auto,1.5" >"$HOME/.config/hypr/local.conf"
+		echo "    created ~/.config/hypr/local.conf"
+	fi
+}
+
 main() {
 	check_deps
 	# Stow first so the Oh My Zsh installer sees our .zshrc and keeps it
 	stow_packages "$@"
+	create_local_files
 	install_zsh_plugins
 	install_tmux_plugins
 

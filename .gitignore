@@ -1,1 +1,5 @@
 *.un~
+
+# Machine-specific files (see README)
+hypr/.config/hypr/local.conf
+hypr/.config/hypr/lockscreen.*
