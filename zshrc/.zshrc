@@ -135,9 +135,10 @@ alias l="colorls -lA --sd"
 alias ll="colorls -l"
 alias ls="colorls"
 alias nf="neofetch"
-source ~/powerlevel10k/powerlevel10k.zsh-theme
+[[ -f ~/powerlevel10k/powerlevel10k.zsh-theme ]] && source ~/powerlevel10k/powerlevel10k.zsh-theme
 #source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
-source $(dirname $(gem which colorls))/tab_complete.sh
+_colorls_lib=$(gem which colorls 2>/dev/null) && source "$(dirname "$_colorls_lib")/tab_complete.sh"
+unset _colorls_lib
 
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
