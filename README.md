@@ -57,17 +57,38 @@ git push
    ```
 
    The installer:
+   - moves any existing configs it would replace (e.g. your current
+     `~/.zshrc` or `~/.config/nvim`) into `~/.dotfiles-backup/`
    - stows every package into `$HOME`
    - installs Oh My Zsh (keeping this repo's `.zshrc`), Powerlevel10k,
      zsh-autosuggestions and zsh-syntax-highlighting
    - installs TPM and the Catppuccin tmux theme (pinned to `v2.1.2`, in
      `~/.config/tmux/plugins/`), then the TPM plugins from `.tmux.conf`
 
-   It is safe to re-run: anything already installed is skipped.
+   It is safe to re-run: anything already installed is skipped. Everything it
+   does is recorded in `~/.dotfiles-backup/manifest` so it can be undone.
 
 3. Open a new terminal. Neovim installs its plugins on first launch.
 
 To install only some packages, list them: `./install.sh nvim tmux zshrc`.
+
+## Uninstalling
+
+```sh
+cd ~/dotfiles
+./uninstall.sh        # add -y to skip the confirmation prompt
+```
+
+This puts the machine back the way it was before `install.sh`:
+
+- removes the symlinks for every package that was installed
+- moves your original configs from `~/.dotfiles-backup/` back into place
+- deletes what the installer downloaded (Oh My Zsh, Powerlevel10k, the zsh
+  and tmux plugins). Anything you already had, such as your own Oh My Zsh,
+  is left alone, and folders the installer created are only removed if empty.
+
+If you changed your login shell to zsh, it prints the `chsh` command to switch
+back. Afterwards you can delete the repo with `rm -rf ~/dotfiles`.
 
 ### Optional tools the configs use
 
@@ -122,8 +143,9 @@ instead: `mkdir git && mv ~/.gitconfig git/ && stow git`.
 ## Troubleshooting
 
 **`cannot stow ... over existing target`** means a real file already exists where
-stow wants to put a symlink (common on a fresh machine, or when an app replaced
-the link with a regular file). Either:
+stow wants to put a symlink. `install.sh` backs these up automatically, so you
+only see this when running `stow` by hand (or after an app replaced a link with
+a regular file). Either:
 
 - move the existing file out of the way and re-run `stow <package>`, or
 - run `stow --adopt <package>` to move the existing file *into* the repo, then
